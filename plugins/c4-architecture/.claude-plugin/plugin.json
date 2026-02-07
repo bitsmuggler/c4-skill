@@ -1,0 +1,8 @@
+{
+  "name": "c4-architecture",
+  "description": "Analyse software architecture and generate C4 models using Structurizr DSL, with diagram export support.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Patrick Roos"
+  }
+}
