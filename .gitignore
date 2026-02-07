@@ -1,0 +1,15 @@
+# Generated diagrams
+diagrams/
+*.puml
+*.png
+*.svg
+
+# Structurizr
+structurizr*.war
+*.json.bak
+
+# OS
+.DS_Store
+
+# Node
+node_modules/
