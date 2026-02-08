@@ -13,22 +13,19 @@ A Claude Code plugin that analyses software architecture and generates C4 models
 ```
 c4-skill/
 ├── .claude-plugin/
-│   └── marketplace.json                     # Marketplace metadata
-├── plugins/
+│   └── plugin.json                          # Plugin metadata
+├── commands/
+│   └── c4.md                                # /c4 slash command
+├── skills/
 │   └── c4-architecture/
-│       ├── .claude-plugin/
-│       │   └── plugin.json                  # Plugin metadata
-│       ├── commands/
-│       │   └── c4.md                        # /c4 slash command
-│       └── skills/
-│           └── c4-architecture/
-│               ├── SKILL.md                 # Skill definition (auto-invoked by Claude)
-│               ├── references/
-│               │   └── structurizr-dsl-reference.md
-│               ├── examples/
-│               │   └── example-workspace.dsl
-│               └── scripts/
-│                   └── export-diagrams.sh
+│       ├── SKILL.md                         # Skill definition (auto-invoked by Claude)
+│       ├── references/
+│       │   └── structurizr-dsl-reference.md # Full DSL syntax reference
+│       ├── examples/
+│       │   └── example-workspace.dsl        # Sample bookstore workspace
+│       └── scripts/
+│           └── export-diagrams.sh           # Structurizr vNext export wrapper
+├── .gitignore
 └── README.md
 ```
 
@@ -37,7 +34,7 @@ c4-skill/
 Symlink the command into your user-level commands directory:
 
 ```bash
-ln -s /path/to/c4-skill/plugins/c4-architecture/commands/c4.md ~/.claude/commands/c4.md
+ln -s /path/to/c4-skill/commands/c4.md ~/.claude/commands/c4.md
 ```
 
 Then restart Claude Code. The `/c4` command will be available globally across all projects.
@@ -81,7 +78,7 @@ npm install -g @mermaid-js/mermaid-cli
 
 ```bash
 # Export to C4-PlantUML, then render to PNG
-bash plugins/c4-architecture/skills/c4-architecture/scripts/export-diagrams.sh workspace.dsl plantuml/c4plantuml ./diagrams
+bash skills/c4-architecture/scripts/export-diagrams.sh workspace.dsl plantuml/c4plantuml ./diagrams
 plantuml -tpng ./diagrams/*.puml
 
 # Or view interactively
