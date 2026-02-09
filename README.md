@@ -1,6 +1,6 @@
 # C4 Structurizr Plugin for Claude Code
 
-A Claude Code plugin that analyses software architecture and generates C4 models using the [Structurizr DSL](https://docs.structurizr.com/dsl/language).
+A Claude Code plugin that analyses software architecture and generates [C4 model](https://c4model.com/) using the [Structurizr DSL](https://docs.structurizr.com/dsl/language).
 
 ## Features
 
@@ -72,7 +72,7 @@ Invoke the `/c4` command to analyse the current project and generate a C4 model.
 
 ### Rendering Diagrams
 
-After generating the `workspace.dsl`, Claude will ask if you want to render diagram images. If you say yes, it exports to PlantUML and renders to PNG — all via Docker.
+After generating the `workspace.dsl`, Claude will ask if you want to render diagram images. If you say yes, it exports to PlantUML and renders to PNG - all via Docker.
 
 You can also run the export script manually:
 
