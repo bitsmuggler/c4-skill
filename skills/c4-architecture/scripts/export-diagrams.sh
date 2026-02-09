@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
-# Export Structurizr DSL workspace to diagrams using Structurizr vNext.
+# Export Structurizr DSL workspace to diagrams and render to images.
+# Requires Docker.
 #
 # Usage:
 #   ./export-diagrams.sh <workspace.dsl> [format] [output-dir]
@@ -11,9 +12,8 @@
 #                   Supported: plantuml, plantuml/c4plantuml, mermaid, json
 #   output-dir      Output directory for generated files (default: ./diagrams)
 #
-# Prerequisites (one of):
-#   - Structurizr WAR:  Download from https://docs.structurizr.com/binaries
-#   - Docker:           docker pull structurizr/structurizr
+# Prerequisites:
+#   Docker: docker pull structurizr/structurizr
 #
 # See: https://docs.structurizr.com/export
 
@@ -28,66 +28,41 @@ if [[ ! -f "$WORKSPACE" ]]; then
     exit 1
 fi
 
+if ! command -v docker &>/dev/null; then
+    echo "Error: Docker is not installed."
+    echo "Install Docker: https://docs.docker.com/get-docker/"
+    exit 1
+fi
+
+if ! docker info &>/dev/null 2>&1; then
+    echo "Error: Docker is not running. Please start Docker first."
+    exit 1
+fi
+
 mkdir -p "$OUTPUT_DIR"
 
-# Locate the Structurizr WAR file (check common locations)
-find_war() {
-    local candidates=(
-        "./structurizr.war"
-        "./structurizr-*.war"
-        "$HOME/structurizr.war"
-        "$HOME/structurizr-*.war"
-    )
-    for pattern in "${candidates[@]}"; do
-        # shellcheck disable=SC2086
-        for f in $pattern; do
-            if [[ -f "$f" ]]; then
-                echo "$f"
-                return 0
-            fi
-        done
-    done
-    return 1
-}
+WORKSPACE_ABS="$(cd "$(dirname "$WORKSPACE")" && pwd)/$(basename "$WORKSPACE")"
+OUTPUT_ABS="$(cd "$OUTPUT_DIR" && pwd)"
 
-# Try WAR file first, fall back to Docker
-STRUCTURIZR_WAR="${STRUCTURIZR_WAR:-}"
+# Step 1: Export DSL to PlantUML/Mermaid
+echo "Exporting workspace to $FORMAT..."
+docker run --rm \
+    -v "$(dirname "$WORKSPACE_ABS"):/usr/local/structurizr" \
+    structurizr/structurizr \
+    export \
+    -workspace "/usr/local/structurizr/$(basename "$WORKSPACE")" \
+    -format "$FORMAT" \
+    -output "/usr/local/structurizr/$(realpath --relative-to="$(dirname "$WORKSPACE_ABS")" "$OUTPUT_ABS" 2>/dev/null || echo "diagrams")"
 
-if [[ -n "$STRUCTURIZR_WAR" && -f "$STRUCTURIZR_WAR" ]]; then
-    echo "Using Structurizr WAR at $STRUCTURIZR_WAR..."
-    java -jar "$STRUCTURIZR_WAR" export \
-        -workspace "$WORKSPACE" \
-        -format "$FORMAT" \
-        -output "$OUTPUT_DIR"
-
-elif STRUCTURIZR_WAR="$(find_war)"; then
-    echo "Found Structurizr WAR at $STRUCTURIZR_WAR..."
-    java -jar "$STRUCTURIZR_WAR" export \
-        -workspace "$WORKSPACE" \
-        -format "$FORMAT" \
-        -output "$OUTPUT_DIR"
-
-elif command -v docker &>/dev/null; then
-    echo "No WAR file found, using Docker (structurizr/structurizr)..."
-    WORKSPACE_ABS="$(cd "$(dirname "$WORKSPACE")" && pwd)/$(basename "$WORKSPACE")"
-    OUTPUT_ABS="$(mkdir -p "$OUTPUT_DIR" && cd "$OUTPUT_DIR" && pwd)"
-
+# Step 2: Render to PNG if PlantUML format was used
+if [[ "$FORMAT" == plantuml* ]]; then
+    echo "Rendering PlantUML diagrams to PNG..."
     docker run --rm \
-        -v "$(dirname "$WORKSPACE_ABS"):/usr/local/structurizr" \
-        -v "$OUTPUT_ABS:/usr/local/structurizr/output" \
-        structurizr/structurizr \
-        export \
-        -workspace "/usr/local/structurizr/$(basename "$WORKSPACE")" \
-        -format "$FORMAT" \
-        -output "/usr/local/structurizr/output"
-else
-    echo "Error: No Structurizr binary found."
+        -v "$OUTPUT_ABS:/data" \
+        plantuml/plantuml \
+        -tpng "/data/*.puml"
     echo ""
-    echo "Install one of:"
-    echo "  1. Download the WAR from https://docs.structurizr.com/binaries"
-    echo "     Then: export STRUCTURIZR_WAR=/path/to/structurizr.war"
-    echo "  2. Docker: docker pull structurizr/structurizr"
-    exit 1
+    echo "PNG images rendered."
 fi
 
 echo ""

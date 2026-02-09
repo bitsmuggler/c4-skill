@@ -127,52 +127,33 @@ styles {
 }
 ```
 
-### Step 5: Render Diagrams (Optional)
+### Step 5: Export and Render Diagrams
 
-Structurizr vNext (https://github.com/structurizr/structurizr) provides the `export` command.
-Supported export formats: **PlantUML**, **C4-PlantUML**, **Mermaid**, **JSON**, and **static HTML site**.
-Note: direct PNG/SVG export is not available — export to PlantUML/Mermaid first, then render with
-the respective tool, or use the `playground` command for interactive viewing.
+All export and rendering is done via Docker. Requires Docker to be installed and running.
 
-**Using the export script:**
+**Export DSL to C4-PlantUML:**
 
 ```bash
-bash skills/c4-architecture/scripts/export-diagrams.sh workspace.dsl plantuml/c4plantuml ./diagrams
-```
-
-**Using Structurizr directly:**
-
-```bash
-# Via WAR file (download from https://docs.structurizr.com/binaries)
-java -jar structurizr.war export -workspace workspace.dsl -format plantuml/c4plantuml -output ./diagrams
-
-# Via Docker
+mkdir -p ./diagrams
 docker run --rm -v $PWD:/usr/local/structurizr structurizr/structurizr \
     export -workspace /usr/local/structurizr/workspace.dsl -format plantuml/c4plantuml -output /usr/local/structurizr/diagrams
-
-# Export to Mermaid
-java -jar structurizr.war export -workspace workspace.dsl -format mermaid -output ./diagrams
 ```
 
-**To get PNG/SVG images from PlantUML output:**
+**Render PlantUML to PNG:**
 
 ```bash
-# Install PlantUML, then render the exported .puml files
-plantuml -tpng ./diagrams/*.puml
-plantuml -tsvg ./diagrams/*.puml
+docker run --rm -v $PWD/diagrams:/data plantuml/plantuml -tpng /data/*.puml
 ```
 
-**Interactive playground (view diagrams in browser):**
+**Render PlantUML to SVG:**
 
 ```bash
-java -jar structurizr.war playground
-# Then open http://localhost:8080 and load your workspace.dsl
+docker run --rm -v $PWD/diagrams:/data plantuml/plantuml -tsvg /data/*.puml
 ```
 
-**Prerequisites:**
-- Structurizr WAR: download from https://docs.structurizr.com/binaries (requires Java)
-- Or Docker: `docker pull structurizr/structurizr`
-- For PNG/SVG rendering: PlantUML (`brew install plantuml`) or Mermaid CLI (`npm install -g @mermaid-js/mermaid-cli`)
+Other supported export formats: `plantuml`, `mermaid`, `json`.
+
+**Prerequisite:** Docker (`docker pull structurizr/structurizr && docker pull plantuml/plantuml`)
 
 ## Quality Checklist
 

@@ -29,15 +29,36 @@ c4-skill/
 └── README.md
 ```
 
+## Prerequisites
+
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed
+- [Docker](https://docs.docker.com/get-docker/) installed and running (for diagram export and rendering)
+
 ## Installation
 
-Symlink the command into your user-level commands directory:
+### 1. Clone into your Claude config directory
 
 ```bash
-ln -s /path/to/c4-skill/commands/c4.md ~/.claude/commands/c4.md
+git clone https://github.com/patrickroos/c4-skill.git ~/.claude/c4-skill
 ```
 
-Then restart Claude Code. The `/c4` command will be available globally across all projects.
+### 2. Symlink the command
+
+```bash
+mkdir -p ~/.claude/commands
+ln -s ~/.claude/c4-skill/commands/c4.md ~/.claude/commands/c4.md
+```
+
+### 3. Pull the Docker images
+
+```bash
+docker pull structurizr/structurizr
+docker pull plantuml/plantuml
+```
+
+### 4. Restart Claude Code
+
+Restart Claude Code (or open a new VS Code window). The `/c4` command is now available globally across all projects.
 
 ## Usage
 
@@ -51,45 +72,19 @@ Invoke the `/c4` command to analyse the current project and generate a C4 model.
 
 ### Rendering Diagrams
 
-Structurizr vNext exports to PlantUML, Mermaid, or static HTML. To get PNG/SVG images, render the PlantUML/Mermaid output with the respective tool.
+After generating the `workspace.dsl`, Claude will ask if you want to render diagram images. If you say yes, it exports to PlantUML and renders to PNG — all via Docker.
 
-**Install Structurizr vNext** (one of):
-
-```bash
-# Option 1: Download the WAR from https://docs.structurizr.com/binaries
-# Requires Java. Then set:
-export STRUCTURIZR_WAR=/path/to/structurizr.war
-
-# Option 2: Docker
-docker pull structurizr/structurizr
-```
-
-**Install a renderer** (for PNG/SVG output):
+You can also run the export script manually:
 
 ```bash
-# PlantUML
-brew install plantuml
-
-# Or Mermaid CLI
-npm install -g @mermaid-js/mermaid-cli
-```
-
-**Export and render:**
-
-```bash
-# Export to C4-PlantUML, then render to PNG
 bash skills/c4-architecture/scripts/export-diagrams.sh workspace.dsl plantuml/c4plantuml ./diagrams
-plantuml -tpng ./diagrams/*.puml
-
-# Or view interactively
-java -jar structurizr.war playground
 ```
 
 ## Supported Diagram Types
 
 | Level | View | Description |
 |-------|------|-------------|
-| 1 | System Landscape | All systems in the enterprise |
+| 0 | System Landscape | All systems in the enterprise |
 | 1 | System Context | One system + its interactions |
 | 2 | Container | Internal structure of a system |
 | 3 | Component | Internal structure of a container |
