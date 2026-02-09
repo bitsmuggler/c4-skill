@@ -18,7 +18,7 @@ c4-skill/
 │   └── c4.md                                # /c4 slash command
 ├── skills/
 │   └── c4-architecture/
-│       ├── SKILL.md                         # Skill definition (auto-invoked by Claude)
+│       ├── SKILL.md                         # Skill definition
 │       ├── references/
 │       │   └── structurizr-dsl-reference.md # Full DSL syntax reference
 │       ├── examples/
