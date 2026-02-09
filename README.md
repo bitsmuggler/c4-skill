@@ -39,7 +39,7 @@ c4-skill/
 ### 1. Clone into your Claude config directory
 
 ```bash
-git clone https://github.com/bitsmuggler/c4-skill.git ~/.claude/c4-skill
+git clone git@github.com:bitsmuggler/c4-skill.git ~/.claude/c4-skill
 ```
 
 ### 2. Symlink the command
